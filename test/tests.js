@@ -284,3 +284,19 @@ asyncTest( 'handle the case where localStorage contains something we did not exp
 			ok( basket.get( 'test' ).key === 'test', 'got a valid cache object' );
 		});
 });
+
+asyncTest( 'chaining with thenRequire', 3, function() {
+	basket.clear();
+	basket
+		.require({ url: 'fixtures/first.js', key: 'first' })
+		.thenRequire({ url: 'fixtures/second.js', key: 'second' })
+		.then(function() {
+			start();
+			ok( basket.get( 'first' ), 'first script loaded' );
+			ok( basket.get( 'second' ), 'second script loaded' );
+			ok( basket.order === 'firstsecond', 'scripts loaded in correct order' );
+		}, function() {
+			start();
+			ok( false, 'error handler called unexpectedly' );
+		});
+});
