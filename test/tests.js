@@ -4,6 +4,7 @@ module( 'Test script API', {
 	teardown: function() {
 		localStorage.clear();
 		basket.fail = false;
+		basket.isValidItem = null;
 	}
 });
 
@@ -299,4 +300,24 @@ asyncTest( 'chaining with thenRequire', 3, function() {
 			start();
 			ok( false, 'error handler called unexpectedly' );
 		});
+});
+
+asyncTest( 'file is fetched from server even if it exists when isValidItem answers no', 2, function() {
+		basket
+			.require({ url: 'fixtures/stamp-script.js'})
+			.then(function() {
+				var stamp = basket.get('fixtures/stamp-script.js').stamp;
+				ok( basket.get('fixtures/stamp-script.js'), 'Data exists in localStorage' );
+				basket.isValidItem = function(source, obj) {
+					return false;
+				};
+				basket
+					.require({ url: 'fixtures/stamp-script.js' })
+					.then(function() {
+						var stampAfter = basket.get('fixtures/stamp-script.js').stamp;
+						ok( stamp !== stampAfter, 'Data retrieved from server' );
+
+						start();
+					});
+			});
 });
